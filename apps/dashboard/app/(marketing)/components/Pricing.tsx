@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import styles from './Pricing.module.css'
 
 const freePlan = {
@@ -76,6 +77,9 @@ export default function Pricing() {
               onClick={() => setBilling('monthly')}
             >
               Monthly
+              {billing === 'monthly' && (
+                <motion.div layoutId="toggleBg" className={styles.toggleActiveBg} />
+              )}
             </button>
             <button
               className={`${styles.toggleBtn} ${billing === 'annual' ? styles.toggleActive : ''}`}
@@ -83,13 +87,20 @@ export default function Pricing() {
             >
               Annual
               <span className={styles.saveBadge}>Save 20%</span>
+              {billing === 'annual' && (
+                <motion.div layoutId="toggleBg" className={styles.toggleActiveBg} />
+              )}
             </button>
           </div>
         </div>
 
         <div className={styles.grid}>
           {/* FREE */}
-          <div className={styles.card}>
+          <motion.div 
+            whileHover={{ y: -8, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className={styles.card}
+          >
             <div className={styles.tier}>{freePlan.tier}</div>
             <div className={styles.price}>
               {freePlan.price}
@@ -105,11 +116,23 @@ export default function Pricing() {
             <Link href={freePlan.ctaHref} className={`${styles.cta} ${styles.ctaGhost}`}>
               {freePlan.cta}
             </Link>
-          </div>
+          </motion.div>
 
           {/* PRO */}
-          <div className={`${styles.card} ${styles.cardPopular}`}>
-            <span className={styles.popularBadge}>Most Popular</span>
+          <motion.div 
+            whileHover={{ y: -8, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className={`${styles.card} ${styles.cardPopular}`}
+          >
+            <AnimatePresence>
+              <motion.span 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={styles.popularBadge}
+              >
+                Most Popular
+              </motion.span>
+            </AnimatePresence>
             <div className={styles.tier}>{proPlan.tier}</div>
             <div className={`${styles.price} ${styles.priceSmall}`}>{proPlan.price}</div>
             <div className={styles.desc}>{proPlan.desc}</div>
@@ -120,10 +143,14 @@ export default function Pricing() {
             <Link href={proPlan.ctaHref} className={`${styles.cta} ${styles.ctaPrimary}`}>
               {proPlan.cta}
             </Link>
-          </div>
+          </motion.div>
 
           {/* ENTERPRISE */}
-          <div className={styles.card}>
+          <motion.div 
+            whileHover={{ y: -8, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className={styles.card}
+          >
             <div className={styles.tier}>{enterprisePlan.tier}</div>
             <div className={styles.price}>{enterprisePlan.price}</div>
             <div className={styles.desc}>{enterprisePlan.desc}</div>
@@ -134,7 +161,7 @@ export default function Pricing() {
             <a href={enterprisePlan.ctaHref} className={`${styles.cta} ${styles.ctaGhost}`}>
               {enterprisePlan.cta}
             </a>
-          </div>
+          </motion.div>
         </div>
 
       </div>

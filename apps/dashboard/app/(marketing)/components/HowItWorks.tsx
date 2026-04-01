@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { Key, Zap, Rocket } from 'lucide-react'
+import { motion } from 'framer-motion'
 import styles from './HowItWorks.module.css'
 
 const steps = [
@@ -35,7 +36,7 @@ export default function HowItWorks() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add(styles.visible)
+            entry.target.classList.add(styles.visible!)
             obs.unobserve(entry.target)
           }
         })
@@ -57,16 +58,23 @@ export default function HowItWorks() {
 
         <div className={styles.grid}>
           {steps.map((step, i) => (
-            <div
+            <motion.div
               key={step.num}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
               className={`${styles.card} revealCard`}
               style={{ transitionDelay: `${i * 0.12}s` }}
             >
               <div className={styles.stepNum}>{step.num}</div>
-              <div className={styles.stepIcon}>{step.icon}</div>
+              <motion.div 
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
+                className={styles.stepIcon}
+              >
+                {step.icon}
+              </motion.div>
               <h3 className={styles.stepTitle}>{step.title}</h3>
               <p className={styles.stepBody}>{step.body}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

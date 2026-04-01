@@ -70,6 +70,7 @@
 }
 
 .toggleBtn {
+  position: relative;
   font-family: var(--font-body);
   font-size: 0.85rem;
   color: #888888;
@@ -78,15 +79,23 @@
   padding: 8px 16px;
   border-radius: 7px;
   cursor: pointer;
-  transition: color 0.2s, background 0.2s;
+  transition: color 0.2s;
   display: flex;
   align-items: center;
   gap: 8px;
+  z-index: 1;
 }
 
 .toggleActive {
   color: #ffffff;
+}
+
+.toggleActiveBg {
+  position: absolute;
+  inset: 0;
   background: rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  z-index: -1;
 }
 
 .saveBadge {

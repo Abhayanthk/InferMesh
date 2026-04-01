@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { Repeat, Zap, Shield, DollarSign, BarChart2 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import styles from './Features.module.css'
 
 const topCards = [
@@ -47,7 +48,7 @@ export default function Features() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add(styles.visible)
+            entry.target.classList.add(styles.visible!)
             obs.unobserve(entry.target)
           }
         })
@@ -68,36 +69,43 @@ export default function Features() {
 
         <div className={styles.bento}>
           {/* Top row */}
-          <div
-            className={`${styles.card} ${styles.cardLarge} featCard`}
-            style={{ transitionDelay: '0s' }}
-          >
-            <div className={styles.icon}>{topCards[0].icon}</div>
-            <h3 className={styles.cardTitle}>{topCards[0].title}</h3>
-            <p className={styles.cardBody}>{topCards[0].body}</p>
-          </div>
+          {topCards[0] && (
+            <motion.div
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className={`${styles.card} ${styles.cardLarge} featCard`}
+              style={{ transitionDelay: '0s' }}
+            >
+              <div className={styles.icon}>{topCards[0].icon}</div>
+              <h3 className={styles.cardTitle}>{topCards[0].title}</h3>
+              <p className={styles.cardBody}>{topCards[0].body}</p>
+            </motion.div>
+          )}
 
-          <div
-            className={`${styles.card} ${styles.cardTopRight} featCard`}
-            style={{ transitionDelay: '0.1s' }}
-          >
-            <div className={styles.icon}>{topCards[1].icon}</div>
-            <h3 className={styles.cardTitle}>{topCards[1].title}</h3>
-            <p className={styles.cardBody}>{topCards[1].body}</p>
-          </div>
+          {topCards[1] && (
+            <motion.div
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              className={`${styles.card} ${styles.cardTopRight} featCard`}
+              style={{ transitionDelay: '0.1s' }}
+            >
+              <div className={styles.icon}>{topCards[1].icon}</div>
+              <h3 className={styles.cardTitle}>{topCards[1].title}</h3>
+              <p className={styles.cardBody}>{topCards[1].body}</p>
+            </motion.div>
+          )}
 
           {/* Bottom row */}
           <div className={styles.bottomRow}>
             {bottomCards.map((card, i) => (
-              <div
+              <motion.div
                 key={card.title}
+                whileHover={{ y: -5, transition: { duration: 0.2 } }}
                 className={`${styles.card} featCard`}
                 style={{ transitionDelay: `${i * 0.1}s` }}
               >
                 <div className={styles.icon}>{card.icon}</div>
                 <h3 className={styles.cardTitle}>{card.title}</h3>
                 <p className={styles.cardBody}>{card.body}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
