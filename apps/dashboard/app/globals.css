@@ -61,3 +61,10 @@
     text-wrap: balance;
   }
 }
+
+/* ── Landing page design tokens ── */
+:root {
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+}
+
