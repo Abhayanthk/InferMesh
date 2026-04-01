@@ -35,7 +35,7 @@ export default function Hero() {
   }, [])
 
   const models = useCounter(300, 2000, started)
-  const devs   = useCounter(4200, 2200, started) // → "4.2M+"
+  const devs   = useCounter(4200, 2200, started) // -> "4.2M+"
 
   const scrollToNext = () => {
     document.getElementById('marquee')?.scrollIntoView({ behavior: 'smooth' })

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { Zap, Gift, Brain } from 'lucide-react'
+import { Zap, Gift, Brain, ArrowRight } from 'lucide-react'
 import styles from './ModelGrid.module.css'
 
 interface Model {
@@ -89,7 +89,7 @@ export default function ModelGrid() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add(styles.visible)
+            entry.target.classList.add(styles.visible!)
             obs.unobserve(entry.target)
           }
         })
@@ -152,7 +152,7 @@ export default function ModelGrid() {
 
         <div className={styles.cta}>
           <Link href="/models" className={styles.btnGhost}>
-            View All 300+ Models →
+            View All 300+ Models <ArrowRight size={18} style={{ marginLeft: '8px', display: 'inline-block', verticalAlign: 'middle' }} />
           </Link>
         </div>
       </div>
