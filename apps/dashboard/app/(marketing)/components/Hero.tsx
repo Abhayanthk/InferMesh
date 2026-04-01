@@ -32,18 +32,19 @@ const containerVariants: any = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.3,
+      staggerChildren: 0.12,
+      delayChildren: 0.4,
     },
   },
 }
 
 const itemVariants: any = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 25, filter: "blur(4px)" },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: "easeOut" },
+    filter: "blur(0px)",
+    transition: { duration: 1, ease: [0.16, 1, 0.3, 1] },
   },
 }
 
@@ -66,16 +67,26 @@ export default function Hero() {
     <section id="hero" className={styles.hero}>
       {/* Orbs */}
       <motion.div 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2, ease: "easeOut" }}
+        initial={{ opacity: 0, scale: 0.8, x: -100, y: -100 }}
+        animate={{ 
+          opacity: [0.1, 0.25, 0.1],
+          scale: [1, 1.2, 1],
+          x: [-50, 0, -50],
+          y: [-50, 50, -50]
+        }}
+        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
         className={styles.orb1} 
         aria-hidden="true" 
       />
       <motion.div 
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2, ease: "easeOut", delay: 0.5 }}
+        initial={{ opacity: 0, scale: 0.8, x: 100, y: 100 }}
+        animate={{ 
+          opacity: [0.08, 0.18, 0.08],
+          scale: [1, 1.3, 1],
+          x: [50, -50, 50],
+          y: [100, -100, 100]
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         className={styles.orb2} 
         aria-hidden="true" 
       />
@@ -91,8 +102,30 @@ export default function Hero() {
           <motion.p variants={itemVariants} className={styles.eyebrow}>The Universal AI Gateway</motion.p>
 
           <motion.h1 variants={itemVariants} className={styles.headline}>
-            <span>One API.</span>
-            <span>Every Model.</span>
+            <motion.span
+              animate={{ backgroundPosition: ["-200% center", "200% center"] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              style={{
+                background: "linear-gradient(90deg, #fff 0%, #fff 40%, #7aaaff 50%, #fff 60%, #fff 100%)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              One API.
+            </motion.span>
+            <motion.span
+              animate={{ backgroundPosition: ["-200% center", "200% center"] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: 0.5 }}
+              style={{
+                background: "linear-gradient(90deg, #fff 0%, #fff 40%, #7aaaff 50%, #fff 60%, #fff 100%)",
+                backgroundSize: "200% auto",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Every Model.
+            </motion.span>
           </motion.h1>
 
           <motion.p variants={itemVariants} className={styles.sub}>
@@ -112,13 +145,21 @@ export default function Hero() {
 
           <motion.div variants={itemVariants} className={styles.stats}>
             <div className={styles.statItem}>
-              <div className={styles.statNum}>{started ? `${models}+` : '0'}</div>
+              <motion.div 
+                animate={started ? { scale: [1, 1.1, 1] } : {}}
+                className={styles.statNum}
+              >
+                {started ? `${models}+` : '0'}
+              </motion.div>
               <div className={styles.statLabel}>Models Available</div>
             </div>
             <div className={styles.statItem}>
-              <div className={styles.statNum}>
+              <motion.div 
+                animate={started ? { scale: [1, 1.1, 1] } : {}}
+                className={styles.statNum}
+              >
                 {started ? `${(devs / 1000).toFixed(1)}M+` : '0'}
-              </div>
+              </motion.div>
               <div className={styles.statLabel}>Developers</div>
             </div>
             <div className={`${styles.statItem} ${styles.statLast}`}>
@@ -130,17 +171,39 @@ export default function Hero() {
 
         {/* ── RIGHT COLUMN — floating terminal card ── */}
         <motion.div 
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
+          initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
+          animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
           className={styles.right} 
           aria-hidden="true"
         >
           <motion.div 
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            animate={{ 
+              y: [0, -12, 0],
+              rotate: [0, 1, 0, -1, 0]
+            }}
+            transition={{ 
+              y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+              rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" }
+            }}
             className={styles.terminalCard}
           >
+            {/* Terminal Shine */}
+            <motion.div
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear", delay: 2 }}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "50%",
+                height: "100%",
+                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)",
+                transform: "skewX(-20deg)",
+                zIndex: 2,
+                pointerEvents: "none"
+              }}
+            />
             {/* mac dots */}
             <div className={styles.terminalBar}>
               <span className={`${styles.dot} ${styles.dotRed}`}   />
