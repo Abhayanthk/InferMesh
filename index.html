@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenRouter Clone — One API. Every Model.</title>
+  <meta name="description" content="Access 300+ LLMs through a single OpenAI-compatible endpoint. Switch models without changing your code." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================
+       DESIGN SYSTEM — CSS VARIABLES
+    ========================================= */
+    :root {
+      --bg:           #080808;
+      --bg-card:      rgba(255, 255, 255, 0.04);
+      --border:       rgba(255, 255, 255, 0.08);
+      --text-primary: #ffffff;
+      --text-muted:   #888888;
+      --accent:       rgba(180, 210, 255, 0.9);
+      --glow:         rgba(150, 190, 255, 0.15);
+
+      --font-display: 'Syne', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+    }
+
+    /* =========================================
+       RESET & BASE
+    ========================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img, svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    button {
+      font-family: var(--font-body);
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+
+    /* =========================================
+       GRAIN OVERLAY
+    ========================================= */
+    #grain {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.04;
+      width: 100%;
+      height: 100%;
+    }
+
+    #grain svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* =========================================
+       SCROLL REVEAL ANIMATIONS
+    ========================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+    .reveal-d3 { transition-delay: 0.3s; }
+    .reveal-d4 { transition-delay: 0.4s; }
+    .reveal-d5 { transition-delay: 0.5s; }
+
+    /* =========================================
+       NAVIGATION
+    ========================================= */
+    #nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 20px 0;
+      transition: background 0.35s ease, backdrop-filter 0.35s ease,
+                  border-color 0.35s ease, padding 0.35s ease;
+      border-bottom: 1px solid transparent;
+    }
+
+    #nav.scrolled {
+      background: rgba(8, 8, 8, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-color: rgba(255, 255, 255, 0.06);
+      padding: 14px 0;
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+    }
+
+    /* Logo */
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Links */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+    }
+
+    /* API Key button */
+    .nav-cta {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      padding: 9px 20px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      letter-spacing: 0.02em;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .nav-cta:hover {
+      border-color: rgba(255, 255, 255, 0.55);
+      box-shadow: 0 0 18px rgba(150, 190, 255, 0.12);
+    }
+
+    /* Hamburger (mobile) */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 4px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      flex-shrink: 0;
+    }
+
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--text-primary);
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* Mobile Drawer */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 998;
+      background: rgba(8, 8, 8, 0.97);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .nav-drawer.open {
+      display: flex;
+    }
+
+    .nav-drawer a {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      transition: color 0.2s ease;
+    }
+
+    .nav-drawer a:hover {
+      color: var(--accent);
+    }
+
+    .drawer-close {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .drawer-close:hover { opacity: 1; }
+
+    /* =========================================
+       BUTTONS
+    ========================================= */
+    @property --btn-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    .btn-primary {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--bg);
+      color: var(--text-primary);
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      border: none;
+      cursor: pointer;
+      overflow: hidden;
+      text-decoration: none;
+      transition: box-shadow 0.3s ease;
+      z-index: 0;
+    }
+
+    /* Animated gradient border */
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: -1.5px;
+      border-radius: 9px;
+      background: conic-gradient(
+        from var(--btn-angle),
+        transparent 20%,
+        rgba(180, 210, 255, 0.7) 40%,
+        rgba(255, 255, 255, 0.9) 50%,
+        rgba(180, 210, 255, 0.7) 60%,
+        transparent 80%
+      );
+      animation: spin-border 3s linear infinite;
+      z-index: -1;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      background: var(--bg);
+      border-radius: 7px;
+      z-index: -1;
+    }
+
+    @keyframes spin-border {
+      to { --btn-angle: 360deg; }
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 28px rgba(150, 190, 255, 0.15),
+                  inset 0 0 20px rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--text-primary);
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(255, 255, 255, 0.75);
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.05);
+    }
+
+    /* =========================================
+       HERO SECTION
+    ========================================= */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Background orbs */
+    .hero-orb {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle,
+        rgba(150, 190, 255, 0.12) 0%,
+        transparent 70%
+      );
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .hero-orb-1 {
+      top: -20%;
+      left: -10%;
+    }
+
+    .hero-orb-2 {
+      bottom: -20%;
+      right: -10%;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 140px 24px 100px;
+    }
+
+    /* Eyebrow */
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Headline */
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 10vw, 9rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-bottom: 28px;
+    }
+
+    .hero-headline span {
+      display: block;
+    }
+
+    /* Subheading */
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+    }
+
+    /* CTA buttons */
+    .hero-btns {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 56px;
+    }
+
+    /* Stats */
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .stat-item {
+      padding: 0 36px;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-item:first-child {
+      padding-left: 0;
+    }
+
+    .stat-item:last-child {
+      border-right: none;
+    }
+
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      letter-spacing: 0.01em;
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .scroll-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+    }
+
+    .scroll-chevron {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      animation: bounce-down 1.8s ease-in-out infinite;
+      line-height: 1;
+    }
+
+    @keyframes bounce-down {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50%       { transform: translateY(7px); opacity: 1; }
+    }
+
+    /* =========================================
+       RESPONSIVE
+    ========================================= */
+    @media (max-width: 768px) {
+      .nav-links,
+      .nav-cta {
+        display: none;
+      }
+
+      .nav-hamburger {
+        display: flex;
+      }
+
+      .hero-inner {
+        text-align: center;
+        padding: 120px 24px 90px;
+      }
+
+      .hero-sub {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-btns {
+        justify-content: center;
+      }
+
+      .hero-stats {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .stat-item {
+        border-right: none;
+        padding: 0 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-btns {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn-primary,
+      .btn-ghost {
+        text-align: center;
+        justify-content: center;
+      }
+
+      .hero-stats {
+        gap: 20px;
+      }
+    }
+
+    /* =========================================
+       SECTION SHARED
+    ========================================= */
+    .section-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+    }
+
+    .section-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-top: 16px;
+      line-height: 1.7;
+    }
+
+    .section-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* =========================================
+       SECTION 2 — MARQUEE
+    ========================================= */
+    #marquee {
+      border-top:    1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .marquee-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 110px;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .marquee-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .marquee-track {
+      width: 100%;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+      );
+    }
+
+    .marquee-inner {
+      display: flex;
+      width: max-content;
+      animation: marquee-scroll 30s linear infinite;
+    }
+
+    .marquee-inner:hover {
+      animation-play-state: paused;
+    }
+
+    .marquee-item {
+      display: inline-flex;
+      align-items: center;
+      padding: 0 24px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .marquee-item::after {
+      content: '·';
+      margin-left: 24px;
+      color: rgba(255, 255, 255, 0.15);
+    }
+
+    @keyframes marquee-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* =========================================
+       SECTION 3 — HOW IT WORKS
+    ========================================= */
+    #how-it-works {
+      padding: 160px 0;
+    }
+
+    .how-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .step-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 36px 32px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 40px rgba(150, 190, 255, 0.06);
+    }
+
+    .step-num {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.06);
+      line-height: 1;
+      margin-bottom: 0;
+    }
+
+    .step-icon {
+      font-size: 1.8rem;
+      margin-top: 8px;
+      line-height: 1;
+    }
+
+    .step-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .step-body {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #how-it-works {
+        padding: 100px 0;
+      }
+    }
+
+    /* =========================================
+       SECTION 4 — MODEL SHOWCASE
+    ========================================= */
+    #models {
+      padding: 160px 0;
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .models-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .models-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .model-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .model-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 40px rgba(150, 190, 255, 0.06);
+    }
+
+    .model-card-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .model-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      letter-spacing: 0;
+    }
+
+    .model-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    .model-provider {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+
+    .model-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+      margin: 16px 0;
+    }
+
+    .model-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .model-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ctx-pill {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 3px 9px;
+      background: transparent;
+    }
+
+    .speed-pill {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .model-price {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .models-cta {
+      text-align: center;
+      margin-top: 48px;
+    }
+
+    @media (max-width: 1024px) {
+      .models-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .models-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #models {
+        padding: 100px 0;
+      }
+    }
+
+    /* =========================================
+       SECTION 5 — CODE BLOCK
+    ========================================= */
+    #code-section {
+      padding: 160px 0;
+    }
+
+    .code-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .code-left .section-title {
+      margin-bottom: 20px;
+    }
+
+    .code-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .check-icon {
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Terminal card */
+    .terminal-card {
+      background: #050505;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .terminal-tabs {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0 4px;
+    }
+
+    .tab-btn {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      padding: 12px 20px;
+      color: #555;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: #888; }
+
+    .tab-btn.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--accent);
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      color: #888;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+      z-index: 2;
+    }
+
+    .copy-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .code-display {
+      padding: 24px;
+      overflow-x: auto;
+    }
+
+    .code-block {
+      display: none;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875rem;
+      line-height: 1.8;
+      color: #ccc;
+      white-space: pre;
+      margin: 0;
+    }
+
+    .code-block.active { display: block; }
+
+    .kw  { color: #569cd6; }
+    .fn  { color: #dcdcaa; }
+    .str { color: #ce9178; }
+    .cm  { color: #6a9955; }
+    .var { color: #9cdcfe; }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      animation: blink-cursor 1s step-end infinite;
+    }
+
+    @keyframes blink-cursor {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    @media (max-width: 900px) {
+      .code-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      #code-section { padding: 100px 0; }
+    }
+
+    /* =========================================
+       SECTION 6 — BENTO FEATURES
+    ========================================= */
+    #features {
+      padding: 160px 0;
+      background: rgba(255,255,255,0.01);
+    }
+
+    .features-header {
+      margin-bottom: 56px;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+
+    .bento-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 36px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .bento-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 40px rgba(150,190,255,0.06);
+    }
+
+    .bento-card-large {
+      grid-column: 1 / 2;
+      grid-row: 1;
+      padding: 48px;
+    }
+
+    .bento-card-top-right {
+      grid-column: 2 / 3;
+      grid-row: 1;
+    }
+
+    .bento-bottom-row {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .bento-icon {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      line-height: 1;
+    }
+
+    .bento-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+
+    .bento-body {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 900px) {
+      .bento-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bento-card-large,
+      .bento-card-top-right {
+        grid-column: 1;
+        grid-row: auto;
+      }
+
+      .bento-bottom-row {
+        grid-column: 1;
+        grid-template-columns: 1fr;
+      }
+
+      #features { padding: 100px 0; }
+    }
+
+    /* =========================================
+       SECTION 7 — PRICING
+    ========================================= */
+    #pricing {
+      padding: 160px 0;
+    }
+
+    .pricing-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .pricing-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 36px 32px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: transform 0.3s ease;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .pricing-card.popular {
+      border-color: rgba(150,190,255,0.25);
+      box-shadow: 0 0 60px rgba(150,190,255,0.06);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -13px;
+      right: 24px;
+      background: var(--accent);
+      color: #080808;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .pricing-tier {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .pricing-price {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .pricing-price sup {
+      font-size: 1.2rem;
+      font-weight: 600;
+      vertical-align: super;
+      letter-spacing: 0;
+    }
+
+    .pricing-price-note {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      letter-spacing: 0;
+    }
+
+    .pricing-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .pricing-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: #555;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .pricing-cta {
+      width: 100%;
+      justify-content: center;
+    }
+
+    @media (max-width: 900px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 460px;
+        margin: 0 auto;
+      }
+
+      #pricing { padding: 100px 0; }
+    }
+
+    /* =========================================
+       SECTION 8 — CLOSING CTA
+    ========================================= */
+    #cta-final {
+      padding: 200px 0;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-orb {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 800px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(150,190,255,0.1) 0%, transparent 65%);
+      filter: blur(100px);
+      pointer-events: none;
+    }
+
+    .cta-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-headline {
+      font-family: var(--font-display);
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      line-height: 0.97;
+      margin-bottom: 24px;
+    }
+
+    .cta-sub {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-top: 20px;
+      margin-bottom: 48px;
+      line-height: 1.7;
+    }
+
+    .btn-primary-lg {
+      padding: 18px 40px;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+      #cta-final { padding: 120px 0; }
+    }
+
+    /* =========================================
+       FOOTER
+    ========================================= */
+    #footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 80px 0 40px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 60px;
+    }
+
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .footer-tagline {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .footer-email {
+      font-size: 0.88rem;
+      color: #666;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-email:hover { color: var(--text-primary); }
+
+    .footer-col-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #555;
+      margin-bottom: 18px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .footer-links a {
+      font-size: 0.9rem;
+      color: #666;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 10px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text-primary); }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-copy {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .footer-socials {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .footer-socials a {
+      font-size: 0.85rem;
+      color: #555;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-socials a:hover { color: var(--text-primary); }
+
+    @media (max-width: 900px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =============================================
+       GRAIN OVERLAY
+  ============================================= -->
+  <div id="grain" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <filter id="grain-filter" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.68"
+          numOctaves="4"
+          stitchTiles="stitch"
+        />
+        <feColorMatrix type="saturate" values="0" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#grain-filter)" />
+    </svg>
+  </div>
+
+  <!-- =============================================
+       NAVIGATION
+  ============================================= -->
+  <nav id="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">OpenRouter Clone</a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="#models">Models</a></li>
+        <li><a href="#docs">Docs</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+
+      <a href="#" class="nav-cta" id="nav-cta-btn">Get API Key</a>
+
+      <button
+        class="nav-hamburger"
+        id="hamburger-btn"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="nav-drawer"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile drawer -->
+  <div class="nav-drawer" id="nav-drawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <button class="drawer-close" id="drawer-close-btn" aria-label="Close menu">&times;</button>
+    <a href="#models" class="drawer-link">Models</a>
+    <a href="#docs"   class="drawer-link">Docs</a>
+    <a href="#pricing" class="drawer-link">Pricing</a>
+    <a href="#"       class="drawer-link">Get API Key</a>
+  </div>
+
+  <!-- =============================================
+       MAIN CONTENT
+  ============================================= -->
+  <main>
+
+    <!-- ==========================================
+         SECTION 1: HERO
+    =========================================== -->
+    <section id="hero" aria-label="Hero">
+
+      <!-- Background orbs -->
+      <div class="hero-orb hero-orb-1" aria-hidden="true"></div>
+      <div class="hero-orb hero-orb-2" aria-hidden="true"></div>
+
+      <div class="hero-inner">
+
+        <!-- Eyebrow -->
+        <p class="hero-eyebrow reveal">The Universal AI Gateway</p>
+
+        <!-- Headline -->
+        <h1 class="hero-headline">
+          <span class="reveal reveal-d1">One API.</span>
+          <span class="reveal reveal-d2">Every Model.</span>
+        </h1>
+
+        <!-- Subheading -->
+        <p class="hero-sub reveal reveal-d3">
+          Access 300+ LLMs — GPT, Claude, Gemini, Llama, Mistral and more
+          — through a single OpenAI-compatible endpoint. Switch models
+          without changing your code.
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="hero-btns reveal reveal-d4">
+          <a href="#" class="btn-primary" id="hero-cta-primary">Start Building Free</a>
+          <a href="#models" class="btn-ghost" id="hero-cta-ghost">Browse Models</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="hero-stats reveal reveal-d5">
+          <div class="stat-item">
+            <div class="stat-num">300+</div>
+            <div class="stat-label">Models Available</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">4.2M+</div>
+            <div class="stat-label">Developers</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">$0</div>
+            <div class="stat-label">To Start</div>
+          </div>
+        </div>
+
+      </div><!-- /.hero-inner -->
+
+      <!-- Scroll indicator -->
+      <div class="scroll-indicator" aria-hidden="true">
+        <span class="scroll-label">Scroll</span>
+        <span class="scroll-chevron">↓</span>
+      </div>
+
+    </section><!-- /#hero -->
+
+    <!-- ==========================================
+         SECTION 2: MARQUEE TRUST BAR
+    =========================================== -->
+    <section id="marquee" aria-label="Trusted by">
+      <div class="marquee-wrapper">
+        <p class="marquee-label">Powering apps built on</p>
+        <div class="marquee-track">
+          <div class="marquee-inner" aria-hidden="true">
+            <!-- Set 1 -->
+            <span class="marquee-item">OpenAI</span>
+            <span class="marquee-item">Anthropic</span>
+            <span class="marquee-item">Google</span>
+            <span class="marquee-item">Meta</span>
+            <span class="marquee-item">Mistral</span>
+            <span class="marquee-item">Cohere</span>
+            <span class="marquee-item">Qwen</span>
+            <span class="marquee-item">Gemini</span>
+            <span class="marquee-item">Llama</span>
+            <span class="marquee-item">Grok</span>
+            <span class="marquee-item">DeepSeek</span>
+            <span class="marquee-item">Perplexity</span>
+            <!-- Set 2 (duplicate for seamless loop) -->
+            <span class="marquee-item">OpenAI</span>
+            <span class="marquee-item">Anthropic</span>
+            <span class="marquee-item">Google</span>
+            <span class="marquee-item">Meta</span>
+            <span class="marquee-item">Mistral</span>
+            <span class="marquee-item">Cohere</span>
+            <span class="marquee-item">Qwen</span>
+            <span class="marquee-item">Gemini</span>
+            <span class="marquee-item">Llama</span>
+            <span class="marquee-item">Grok</span>
+            <span class="marquee-item">DeepSeek</span>
+            <span class="marquee-item">Perplexity</span>
+          </div>
+        </div>
+      </div>
+    </section><!-- /#marquee -->
+
+    <!-- ==========================================
+         SECTION 3: HOW IT WORKS
+    =========================================== -->
+    <section id="how-it-works" aria-label="How it works">
+      <div class="section-container">
+
+        <div class="how-header">
+          <p class="section-eyebrow reveal">How It Works</p>
+          <h2 class="section-title reveal reveal-d1">From Zero to Production in Minutes</h2>
+          <p class="section-subtitle reveal reveal-d2">Three steps. No friction. No rewrites.</p>
+        </div>
+
+        <div class="steps-grid">
+
+          <div class="step-card reveal">
+            <div class="step-num">01</div>
+            <div class="step-icon">🔑</div>
+            <h3 class="step-title">Get Your API Key</h3>
+            <p class="step-body">Create a free account and grab your key instantly. No credit card required.</p>
+          </div>
+
+          <div class="step-card reveal reveal-d1">
+            <div class="step-num">02</div>
+            <div class="step-icon">⚡</div>
+            <h3 class="step-title">Choose Your Model</h3>
+            <p class="step-body">Browse 300+ models. Filter by speed, cost, context window, and capability. Switch any time.</p>
+          </div>
+
+          <div class="step-card reveal reveal-d2">
+            <div class="step-num">03</div>
+            <div class="step-icon">🚀</div>
+            <h3 class="step-title">Ship It</h3>
+            <p class="step-body">Point your existing OpenAI SDK to our endpoint. One line change. Fully compatible.</p>
+          </div>
+
+        </div>
+      </div>
+    </section><!-- /#how-it-works -->
+
+    <!-- ==========================================
+         SECTION 4: MODEL SHOWCASE GRID
+    =========================================== -->
+    <section id="models" aria-label="Model library">
+      <div class="section-container">
+
+        <div class="models-header">
+          <p class="section-eyebrow reveal">The Model Library</p>
+          <h2 class="section-title reveal reveal-d1">300+ Models. Zero Switching Cost.</h2>
+          <p class="section-subtitle reveal reveal-d2">Same API call. Different model. That&rsquo;s it.</p>
+        </div>
+
+        <div class="models-grid">
+
+          <!-- GPT-4.1 -->
+          <div class="model-card reveal">
+            <div class="model-card-top">
+              <div class="model-badge" style="background:#10a37f">OA</div>
+              <div class="model-name">GPT-4.1</div>
+            </div>
+            <div class="model-provider">OpenAI</div>
+            <div class="model-divider"></div>
+            <div class="model-footer">
+              <div class="model-left">
+                <span class="ctx-pill">1M ctx</span>
+                <span class="speed-pill">⚡ Fast</span>
+              </div>
+              <span class="model-price">$2.00/1M</span>
+            </div>
+          </div>
+
+          <!-- Claude Sonnet 4.6 -->
+          <div class="model-card reveal reveal-d1">
+            <div class="model-card-top">
+              <div class="model-badge" style="background:#cc785c">AN</div>
+              <div class="model-name">Claude Sonnet 4.6</div>
+            </div>
+            <div class="model-provider">Anthropic</div>
+            <div class="model-divider"></div>
+            <div class="model-footer">
+              <div class="model-left">
+                <span class="ctx-pill">200K ctx</span>
+                <span class="speed-pill">⚡ Fast</span>
+              </div>
+              <span class="model-price">$3.00/1M</span>
+            </div>
+          </div>
+
+          <!-- Gemini 2.0 Flash -->
+          <div class="model-card reveal reveal-d2">
+            <div class="model-card-top">
+              <div class="model-badge" style="background:#4285f4">GG</div>
+              <div class="model-name">Gemini 2.0 Flash</div>
+            </div>
+            <div class="model-provider">Google</div>
+            <div class="model-divider"></div>
+            <div class="model-footer">
+              <div class="model-left">
+                <span class="ctx-pill">1M ctx</span>
+                <span class="speed-pill">⚡ Blazing</span>
+              </div>
+              <span class="model-price">$0.10/1M</span>
+            </div>
+          </div>
+
+          <!-- Llama 3.3 70B -->
+          <div class="model-card reveal reveal-d1">
+            <div class="model-card-top">
+              <div class="model-badge" style="background:#0064e0">MT</div>
+              <div class="model-name">Llama 3.3 70B</div>
+            </div>
+            <div class="model-provider">Meta</div>
+            <div class="model-divider"></div>
+            <div class="model-footer">
+              <div class="model-left">
+                <span class="ctx-pill">128K ctx</span>
+                <span class="speed-pill">🆓 Free Tier</span>
+              </div>
+              <span class="model-price">$0.09/1M</span>
+            </div>
+          </div>
+
+          <!-- Mistral Large -->
+          <div class="model-card reveal reveal-d2">
+            <div class="model-card-top">
+              <div class="model-badge" style="background:#ff7000">MI</div>
+              <div class="model-name">Mistral Large</div>
+            </div>
+            <div class="model-provider">Mistral</div>
+            <div class="model-divider"></div>
+            <div class="model-footer">
+              <div class="model-left">
+                <span class="ctx-pill">128K ctx</span>
+                <span class="speed-pill">⚡ Fast</span>
+              </div>
+              <span class="model-price">$2.00/1M</span>
+            </div>
+          </div>
+
+          <!-- Qwen3 235B -->
+          <div class="model-card reveal reveal-d3">
+            <div class="model-card-top">
+              <div class="model-badge" style="background:#6366f1">QW</div>
+              <div class="model-name">Qwen3 235B</div>
+            </div>
+            <div class="model-provider">Alibaba</div>
+            <div class="model-divider"></div>
+            <div class="model-footer">
+              <div class="model-left">
+                <span class="ctx-pill">256K ctx</span>
+                <span class="speed-pill">🧠 Reasoning</span>
+              </div>
+              <span class="model-price">$0.14/1M</span>
+            </div>
+          </div>
+
+        </div><!-- /.models-grid -->
+
+        <div class="models-cta reveal">
+          <a href="#" class="btn-ghost">View All 300+ Models &rarr;</a>
+        </div>
+
+      </div>
+    </section><!-- /#models -->
+
+    <!-- ==========================================
+         SECTION 5: CODE BLOCK
+    =========================================== -->
+    <section id="code-section" aria-label="Developer integration">
+      <div class="section-container">
+
+        <div class="code-grid">
+
+          <!-- Left column -->
+          <div class="code-left reveal">
+            <p class="section-eyebrow">Developer First</p>
+            <h2 class="section-title">Drop In.<br>No Rewrite.</h2>
+            <p class="code-subtitle">Our API is 100% OpenAI-compatible. Point your existing SDK at our endpoint and you're done. Switch models with one parameter change.</p>
+            <ul class="checklist">
+              <li><span class="check-icon">✓</span> OpenAI SDK compatible — zero code changes</li>
+              <li><span class="check-icon">✓</span> 300+ models via one key</li>
+              <li><span class="check-icon">✓</span> Automatic failover and fallback routing</li>
+              <li><span class="check-icon">✓</span> Per-request model switching</li>
+              <li><span class="check-icon">✓</span> Streaming support out of the box</li>
+            </ul>
+          </div>
+
+          <!-- Right column — terminal -->
+          <div class="terminal-card reveal reveal-d2">
+            <div class="terminal-tabs">
+              <button class="tab-btn active" data-tab="python">Python</button>
+              <button class="tab-btn" data-tab="js">JavaScript</button>
+              <button class="tab-btn" data-tab="curl">cURL</button>
+            </div>
+            <button class="copy-btn" id="copy-btn" aria-label="Copy code">Copy</button>
+            <div class="code-display">
+
+              <pre class="code-block active" id="code-python"><span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+
+client = <span class="fn">OpenAI</span>(
+  base_url=<span class="str">"https://api.openrouterclone.ai/v1"</span>,
+  api_key=<span class="str">"sk-your-api-key"</span>
+)
+
+response = client.chat.completions.<span class="fn">create</span>(
+  model=<span class="str">"anthropic/claude-sonnet-4-6"</span>,
+  messages=[{<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: <span class="str">"Hello!"</span>}]
+)
+
+<span class="fn">print</span>(response.choices[<span class="var">0</span>].message.content)<span class="cursor"></span></pre>
+
+              <pre class="code-block" id="code-js"><span class="kw">import</span> OpenAI <span class="kw">from</span> <span class="str">'openai'</span>;
+
+<span class="kw">const</span> client = <span class="kw">new</span> <span class="fn">OpenAI</span>({
+  baseURL: <span class="str">'https://api.openrouterclone.ai/v1'</span>,
+  apiKey: <span class="str">'sk-your-api-key'</span>,
+});
+
+<span class="kw">const</span> response = <span class="kw">await</span> client.chat.completions.<span class="fn">create</span>({
+  model: <span class="str">'anthropic/claude-sonnet-4-6'</span>,
+  messages: [{ role: <span class="str">'user'</span>, content: <span class="str">'Hello!'</span> }],
+});
+
+console.<span class="fn">log</span>(response.choices[<span class="var">0</span>].message.content);<span class="cursor"></span></pre>
+
+              <pre class="code-block" id="code-curl">curl https://api.openrouterclone.ai/v1/chat/completions \
+  -H <span class="str">"Authorization: Bearer sk-your-api-key"</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"model": "anthropic/claude-sonnet-4-6",
+     "messages": [{"role": "user", "content": "Hello!"}]}'</span><span class="cursor"></span></pre>
+
+            </div>
+          </div><!-- /.terminal-card -->
+
+        </div>
+      </div>
+    </section><!-- /#code-section -->
+
+    <!-- ==========================================
+         SECTION 6: FEATURES BENTO
+    =========================================== -->
+    <section id="features" aria-label="Features">
+      <div class="section-container">
+
+        <div class="features-header">
+          <p class="section-eyebrow reveal">Why OpenRouter Clone</p>
+          <h2 class="section-title reveal reveal-d1">Built for Builders Who Ship</h2>
+        </div>
+
+        <div class="bento-grid">
+
+          <div class="bento-card bento-card-large reveal">
+            <div class="bento-icon">🔁</div>
+            <h3 class="bento-title">Automatic Failover</h3>
+            <p class="bento-body">If a provider goes down, we instantly re-route your request to another. Your users never notice. 99.9% uptime guaranteed.</p>
+          </div>
+
+          <div class="bento-card bento-card-top-right reveal reveal-d1">
+            <div class="bento-icon">⚡</div>
+            <h3 class="bento-title">Edge-Optimized</h3>
+            <p class="bento-body">Globally distributed infrastructure. Minimal latency between your app and inference.</p>
+          </div>
+
+          <div class="bento-bottom-row">
+            <div class="bento-card reveal">
+              <div class="bento-icon">🛡️</div>
+              <h3 class="bento-title">Privacy First</h3>
+              <p class="bento-body">Prompt logging OFF by default. Zero Data Retention routing available on request.</p>
+            </div>
+            <div class="bento-card reveal reveal-d1">
+              <div class="bento-icon">💰</div>
+              <h3 class="bento-title">Unified Billing</h3>
+              <p class="bento-body">One balance. All providers. No juggling 10 API keys and invoices.</p>
+            </div>
+            <div class="bento-card reveal reveal-d2">
+              <div class="bento-icon">📊</div>
+              <h3 class="bento-title">Usage Analytics</h3>
+              <p class="bento-body">Track token spend, latency, and model performance — all in one dashboard.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section><!-- /#features -->
+
+    <!-- ==========================================
+         SECTION 7: PRICING
+    =========================================== -->
+    <section id="pricing" aria-label="Pricing">
+      <div class="section-container">
+
+        <div class="pricing-header">
+          <p class="section-eyebrow reveal">Pricing</p>
+          <h2 class="section-title reveal reveal-d1">Transparent. Simple. Fair.</h2>
+          <p class="section-subtitle reveal reveal-d2">Pay only for what you use. No monthly fees. No surprises.</p>
+        </div>
+
+        <div class="pricing-grid">
+
+          <!-- FREE -->
+          <div class="pricing-card reveal">
+            <div class="pricing-tier">Free</div>
+            <div class="pricing-price">$0 <span class="pricing-price-note">/mo</span></div>
+            <div class="pricing-desc">Perfect to get started</div>
+            <div class="pricing-divider"></div>
+            <ul class="pricing-features">
+              <li>Access to free-tier models</li>
+              <li>10 requests per minute</li>
+              <li>Community support</li>
+              <li>Basic analytics dashboard</li>
+            </ul>
+            <a href="#" class="btn-ghost pricing-cta">Get Started</a>
+          </div>
+
+          <!-- PRO -->
+          <div class="pricing-card popular reveal reveal-d1">
+            <span class="popular-badge">Most Popular</span>
+            <div class="pricing-tier">Pro</div>
+            <div class="pricing-price" style="font-size:2rem;letter-spacing:-0.02em">Pay as you go</div>
+            <div class="pricing-desc">For serious builders</div>
+            <div class="pricing-divider"></div>
+            <ul class="pricing-features">
+              <li>All 300+ models unlocked</li>
+              <li>Priority routing and failover</li>
+              <li>Full analytics dashboard</li>
+              <li>Streaming support</li>
+              <li>Email support</li>
+            </ul>
+            <a href="#" class="btn-primary pricing-cta">Start Building</a>
+          </div>
+
+          <!-- ENTERPRISE -->
+          <div class="pricing-card reveal reveal-d2">
+            <div class="pricing-tier">Enterprise</div>
+            <div class="pricing-price">Custom</div>
+            <div class="pricing-desc">For teams and organizations</div>
+            <div class="pricing-divider"></div>
+            <ul class="pricing-features">
+              <li>Everything in Pro</li>
+              <li>Dedicated infrastructure</li>
+              <li>99.9% SLA guarantee</li>
+              <li>SSO and team management</li>
+              <li>Data residency options</li>
+              <li>Dedicated account support</li>
+            </ul>
+            <a href="#" class="btn-ghost pricing-cta">Contact Us</a>
+          </div>
+
+        </div>
+      </div>
+    </section><!-- /#pricing -->
+
+    <!-- ==========================================
+         SECTION 8: CLOSING CTA
+    =========================================== -->
+    <section id="cta-final" aria-label="Get started">
+      <div class="cta-orb" aria-hidden="true"></div>
+      <div class="section-container">
+        <div class="cta-inner">
+          <p class="section-eyebrow reveal" style="text-align:center">Get Started Today</p>
+          <h2 class="cta-headline reveal reveal-d1">Start Building.</h2>
+          <p class="cta-sub reveal reveal-d2">Free to start. No credit card required.<br>Join 4.2M+ developers worldwide.</p>
+          <div class="reveal reveal-d3">
+            <a href="#" class="btn-primary btn-primary-lg">Create Free Account &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section><!-- /#cta-final -->
+
+  </main>
+
+  <!-- ==========================================
+       FOOTER
+  =========================================== -->
+  <footer id="footer" aria-label="Site footer">
+    <div class="section-container">
+
+      <div class="footer-grid">
+
+        <div>
+          <div class="footer-logo">OpenRouter Clone</div>
+          <div class="footer-tagline">One API. Every Model.</div>
+          <a href="mailto:hello@openrouterclone.ai" class="footer-email">hello@openrouterclone.ai</a>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Product</div>
+          <ul class="footer-links">
+            <li><a href="#models">Models</a></li>
+            <li><a href="#docs">Docs</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#">Changelog</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="#">About</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Status</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="#">Privacy</a></li>
+            <li><a href="#">Terms</a></li>
+            <li><a href="#">Security</a></li>
+          </ul>
+        </div>
+
+      </div><!-- /.footer-grid -->
+
+      <div class="footer-bottom">
+        <span class="footer-copy">&copy; 2025 OpenRouter Clone. All rights reserved.</span>
+        <div class="footer-socials">
+          <a href="#">GitHub</a>
+          <a href="#">Twitter / X</a>
+          <a href="#">Discord</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <script>
+    /* =============================================
+       1. NAV SCROLL BLUR
+    ============================================= */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+
+    /* =============================================
+       2. MOBILE DRAWER
+    ============================================= */
+    const hamburger  = document.getElementById('hamburger-btn');
+    const drawer     = document.getElementById('nav-drawer');
+    const drawerClose = document.getElementById('drawer-close-btn');
+
+    const openDrawer = () => {
+      drawer.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeDrawer = () => {
+      drawer.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    };
+
+    hamburger.addEventListener('click', openDrawer);
+    drawerClose.addEventListener('click', closeDrawer);
+    drawer.querySelectorAll('.drawer-link').forEach(l => l.addEventListener('click', closeDrawer));
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+    });
+
+    /* =============================================
+       3. INTERSECTION OBSERVER — SCROLL REVEALS
+    ============================================= */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('visible');
+        /* Stagger direct .reveal-child children */
+        const children = entry.target.querySelectorAll('.reveal-child');
+        children.forEach((child, i) => {
+          child.style.transitionDelay = (i * 0.1) + 's';
+          child.classList.add('visible');
+        });
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* =============================================
+       4. CODE TABS
+    ============================================= */
+    const tabBtns   = document.querySelectorAll('.tab-btn');
+    const codeBlocks = document.querySelectorAll('.code-block');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        codeBlocks.forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const target = document.getElementById('code-' + btn.dataset.tab);
+        if (target) target.classList.add('active');
+      });
+    });
+
+    /* =============================================
+       5. COPY BUTTON
+    ============================================= */
+    const copyBtn = document.getElementById('copy-btn');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        const active = document.querySelector('.code-block.active');
+        if (!active) return;
+        const text = active.innerText.replace(/\|$/, '').trim();
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+        }).catch(() => {
+          copyBtn.textContent = 'Error';
+          setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>
