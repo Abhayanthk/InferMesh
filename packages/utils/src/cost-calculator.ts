@@ -1,44 +1,51 @@
-/**
- * @repo/utils — Cost Calculator
- *
- * Calculates cost for LLM API calls based on token usage and provider pricing.
- * Shared across api-gateway and primary-backend.
- *
- * TODO: Migrate cost_Calculation logic from api-gateway adapter.ts
- */
+import type { ModelRegistryEntry } from "@openrouter/types";
+import { modelRegistry } from "@openrouter/config";
 
-import type { CostPerToken } from "@repo/types";
-
-export interface TokenUsage {
-  promptTokens: number;
-  completionTokens: number;
-  totalTokens: number;
+// ─── Usage Metadata (from Gemini / generic provider) ─────────
+export interface UsageMetadata {
+  promptTokenCount: number;
+  candidatesTokenCount: number;
+  totalTokenCount?: number;
+  thoughtsTokenCount?: number;
+  cacheReadTokenCount?: number;
 }
 
-export interface CostBreakdown {
-  promptCost: number;
-  completionCost: number;
-  totalCost: number;
-  currency: "USD";
-}
-
+// ─── Cost Calculator ─────────────────────────────────────────
 /**
- * Calculate the cost of an LLM API call based on token usage and pricing.
+ * Calculate the cost of an LLM call based on token usage and
+ * the model registry pricing data.
+ *
+ * @param modelSlug - The full slug (e.g. "google/gemini-2.5-pro")
+ *                    or just the provider-prefixed version.
+ *                    If only a bare model name is provided,
+ *                    pass `providerPrefix` to prepend it.
+ * @param usage     - Token counts from the provider's response
+ * @param providerPrefix - Optional prefix (e.g. "google/") to prepend
+ * @returns Total cost in USD (number), or 0 if model not found
  */
-export function calculateCost(
-  usage: TokenUsage,
-  pricing: CostPerToken,
-): CostBreakdown {
-  const promptRate = parseFloat(pricing.prompt);
-  const completionRate = parseFloat(pricing.completion);
+export function costCalculation(
+  modelSlug: string,
+  usage: UsageMetadata,
+  providerPrefix?: string
+): number {
+  const fullSlug = providerPrefix
+    ? `${providerPrefix}${modelSlug}`
+    : modelSlug;
 
-  const promptCost = usage.promptTokens * promptRate;
-  const completionCost = usage.completionTokens * completionRate;
+  const entry: ModelRegistryEntry | undefined = modelRegistry[fullSlug];
 
-  return {
-    promptCost,
-    completionCost,
-    totalCost: promptCost + completionCost,
-    currency: "USD",
-  };
+  if (!entry) {
+    console.warn(`[cost-calculator] Model "${fullSlug}" not found in registry`);
+    return 0;
+  }
+
+  const { cost_per_token } = entry;
+
+  const cost =
+    usage.promptTokenCount * cost_per_token.input +
+    usage.candidatesTokenCount * cost_per_token.output +
+    (usage.thoughtsTokenCount || 0) * (cost_per_token.reasoning || 0) +
+    (usage.cacheReadTokenCount || 0) * (cost_per_token.cache_read || 0);
+
+  return cost;
 }

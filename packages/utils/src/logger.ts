@@ -1,83 +1,56 @@
-/**
- * @repo/utils — Structured Logger
- *
- * Shared logging utility for all apps.
- * Outputs structured JSON logs in production, pretty logs in development.
- */
+// ─── Log Levels ──────────────────────────────────────────────
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
-type LogLevel = "debug" | "info" | "warn" | "error";
-
-interface LogEntry {
-  level: LogLevel;
-  message: string;
-  timestamp: string;
-  service?: string;
-  [key: string]: unknown;
-}
-
-const LOG_LEVELS: Record<LogLevel, number> = {
-  debug: 0,
-  info: 1,
-  warn: 2,
-  error: 3,
+const LOG_COLORS: Record<LogLevel, string> = {
+  debug: "\x1b[90m",  // gray
+  info:  "\x1b[36m",  // cyan
+  warn:  "\x1b[33m",  // yellow
+  error: "\x1b[31m",  // red
 };
 
-const currentLevel: LogLevel =
-  (process.env["LOG_LEVEL"] as LogLevel) || "info";
+const RESET = "\x1b[0m";
 
-function shouldLog(level: LogLevel): boolean {
-  return LOG_LEVELS[level] >= LOG_LEVELS[currentLevel];
-}
+// ─── Logger ──────────────────────────────────────────────────
+export class Logger {
+  private context: string;
+  private minLevel: LogLevel;
 
-function formatEntry(entry: LogEntry): string {
-  if (process.env["NODE_ENV"] === "production") {
-    return JSON.stringify(entry);
+  private static LEVELS: LogLevel[] = ["debug", "info", "warn", "error"];
+
+  constructor(context: string, minLevel: LogLevel = "info") {
+    this.context = context;
+    this.minLevel = minLevel;
   }
 
-  const { level, message, timestamp, service, ...extra } = entry;
-  const prefix = service ? `[${service}]` : "";
-  const extraStr =
-    Object.keys(extra).length > 0 ? ` ${JSON.stringify(extra)}` : "";
-  return `${timestamp} ${level.toUpperCase().padEnd(5)} ${prefix} ${message}${extraStr}`;
-}
+  private shouldLog(level: LogLevel): boolean {
+    return Logger.LEVELS.indexOf(level) >= Logger.LEVELS.indexOf(this.minLevel);
+  }
 
-function log(
-  level: LogLevel,
-  message: string,
-  meta?: Record<string, unknown>,
-): void {
-  if (!shouldLog(level)) return;
+  private format(level: LogLevel, message: string, data?: any): string {
+    const ts = new Date().toISOString();
+    const color = LOG_COLORS[level];
+    const base = `${color}[${ts}] [${level.toUpperCase()}] [${this.context}]${RESET} ${message}`;
+    return data ? `${base} ${JSON.stringify(data)}` : base;
+  }
 
-  const entry: LogEntry = {
-    level,
-    message,
-    timestamp: new Date().toISOString(),
-    ...meta,
-  };
+  debug(msg: string, data?: any) {
+    if (this.shouldLog("debug")) console.debug(this.format("debug", msg, data));
+  }
 
-  const formatted = formatEntry(entry);
+  info(msg: string, data?: any) {
+    if (this.shouldLog("info")) console.info(this.format("info", msg, data));
+  }
 
-  if (level === "error") {
-    console.error(formatted);
-  } else if (level === "warn") {
-    console.warn(formatted);
-  } else {
-    console.log(formatted);
+  warn(msg: string, data?: any) {
+    if (this.shouldLog("warn")) console.warn(this.format("warn", msg, data));
+  }
+
+  error(msg: string, data?: any) {
+    if (this.shouldLog("error")) console.error(this.format("error", msg, data));
   }
 }
 
-/**
- * Create a logger instance with a service name prefix.
- */
-export function createLogger(service: string) {
-  return {
-    debug: (msg: string, meta?: Record<string, unknown>) =>
-      log("debug", msg, { service, ...meta }),
-    info: (msg: string, meta?: Record<string, unknown>) =>
-      log("info", msg, { service, ...meta }),
-    warn: (msg: string, meta?: Record<string, unknown>) =>
-      log("warn", msg, { service, ...meta }),
-    error: (msg: string, meta?: Record<string, unknown>) =>
-      log("error", msg, { service, ...meta }),
-  };
+// ─── Factory ─────────────────────────────────────────────────
+export function createLogger(context: string, minLevel?: LogLevel): Logger {
+  return new Logger(context, minLevel);
 }

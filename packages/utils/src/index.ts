@@ -1,7 +1,13 @@
-// @repo/utils — Shared utility functions
-// Logging, cost calculation, and other cross-cutting utilities.
+// ─── @openrouter/utils ───────────────────────────────────────
+// Re-export all shared utilities
 
-export { calculateCost } from "./cost-calculator.ts";
-export type { TokenUsage, CostBreakdown } from "./cost-calculator.ts";
+export {
+  costCalculation,
+  type UsageMetadata,
+} from "./cost-calculator.ts";
 
-export { createLogger } from "./logger.ts";
+export {
+  Logger,
+  createLogger,
+  type LogLevel,
+} from "./logger.ts";
