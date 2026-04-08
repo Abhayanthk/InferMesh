@@ -1,9 +1,5 @@
-// @repo/config — Shared configuration data
-// Provider maps, model registry, and strategy definitions.
+// ─── @openrouter/config ──────────────────────────────────────
+// Re-export all config data
 
-export { modelProviderMap } from "./model-provider.ts";
-export {
-  getModelRegistry,
-  findModelBySlug,
-  mapOpenRouterModels,
-} from "./model-registry.ts";
+export { modelProvider } from "./model-provider";
+export { mapOpenRouterModels, modelRegistry } from "./model-registry";
