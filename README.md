@@ -145,7 +145,7 @@ All telemetry records and trace logs are saved asynchronously to **PostgreSQL**.
 
 ### UML Diagrams
 
-![Class Diagram](./docs/assets/class_diagram.jpeg)
+![Class Diagram](./docs/assets/class_diagram.png)
 _Class Diagram_
 
 ![Sequence Diagram](./docs/assets/sequence_diagram.png)
