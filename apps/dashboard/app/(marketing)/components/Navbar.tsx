@@ -36,7 +36,7 @@ export default function Navbar() {
             <li><a href="#pricing">Pricing</a></li>
           </ul>
 
-          <Link href="/login" className={styles.cta}>
+          <Link href="/workspace/api-keys" className={styles.cta}>
             Get API Key
           </Link>
 
@@ -66,7 +66,7 @@ export default function Navbar() {
         <a href="#models" className={styles.drawerLink} onClick={closeMenu}>Models</a>
         <Link href="/docs" className={styles.drawerLink} onClick={closeMenu}>Docs</Link>
         <a href="#pricing" className={styles.drawerLink} onClick={closeMenu}>Pricing</a>
-        <Link href="/login" className={styles.drawerLink} onClick={closeMenu}>Get API Key</Link>
+        <Link href="/workspace/api-keys" className={styles.drawerLink} onClick={closeMenu}>Get API Key</Link>
       </div>
     </>
   )

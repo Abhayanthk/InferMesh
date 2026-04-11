@@ -32,7 +32,7 @@ export default function ClosingCTA() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Link href="/login" className={styles.btnPrimary}>
+              <Link href="/workspace/api-keys" className={styles.btnPrimary}>
                 Create Free Account <ArrowRight size={18} style={{ marginLeft: '8px', display: 'inline-block', verticalAlign: 'middle' }} />
               </Link>
             </motion.div>

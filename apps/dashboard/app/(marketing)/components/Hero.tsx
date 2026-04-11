@@ -135,7 +135,7 @@ export default function Hero() {
           </motion.p>
 
           <motion.div variants={itemVariants} className={styles.btns}>
-            <Link href="/login" className={styles.btnPrimary}>
+            <Link href="/workspace/api-keys" className={styles.btnPrimary}>
               Start Building Free
             </Link>
             <a href="#models" className={styles.btnGhost}>
