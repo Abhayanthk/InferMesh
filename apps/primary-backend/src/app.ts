@@ -14,9 +14,8 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok", service: "primary-backend" });
 });
 
-// TODO: Import and mount routes
-// import { router } from "./routes/index.ts";
-// app.use("/api", router);
+import { router } from "./routes/index.ts";
+app.use("/api", router);
 
 app.listen(PORT, () => {
   console.log(`Primary Backend running at http://localhost:${PORT}`);
