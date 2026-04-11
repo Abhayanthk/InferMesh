@@ -35,7 +35,7 @@ export default function Footer() {
             <ul className={styles.links}>
               {productLinks.map((name) => (
                 <li key={name}>
-                  <Link href={hrefs[name]}>{name}</Link>
+                  <Link href={hrefs[name] || '#'}>{name}</Link>
                 </li>
               ))}
             </ul>
@@ -47,7 +47,7 @@ export default function Footer() {
             <ul className={styles.links}>
               {companyLinks.map((name) => (
                 <li key={name}>
-                  <Link href={hrefs[name]}>{name}</Link>
+                  <Link href={hrefs[name] || '#'}>{name}</Link>
                 </li>
               ))}
             </ul>
@@ -59,7 +59,7 @@ export default function Footer() {
             <ul className={styles.links}>
               {legalLinks.map((name) => (
                 <li key={name}>
-                  <Link href={hrefs[name]}>{name}</Link>
+                  <Link href={hrefs[name] || '#'}>{name}</Link>
                 </li>
               ))}
             </ul>
