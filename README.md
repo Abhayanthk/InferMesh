@@ -275,6 +275,8 @@ const response = await openai.chat.completions.create({
         retry: 3, // Set custom retry handler count
       },
     });
+
+console.log(response)
 ```
 
 <br>
