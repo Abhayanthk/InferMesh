@@ -240,86 +240,200 @@
   width: 100%;
 }
 
-/* floating terminal card */
-.terminalCard {
+/* ── NEW IDE COMPONENT ── */
+.ideContainer {
   width: 100%;
-  max-width: 100%;
-  background: rgba(255, 255, 255, 0.04);
+  max-width: 600px;
+  background: #0f111a;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 28px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transform: rotate(2deg);
-  animation: floatCard 4s ease-in-out infinite;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4),
-              0 0 40px rgba(100, 150, 255, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6),
+              0 0 40px rgba(100, 150, 255, 0.04);
+  font-family: 'Inter', sans-serif;
+  transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
+  transition: transform 0.4s ease;
 }
 
-@keyframes floatCard {
-  0%, 100% { transform: rotate(2deg) translateY(-8px); }
-  50%       { transform: rotate(2deg) translateY(8px); }
+.ideContainer:hover {
+  transform: perspective(1000px) rotateY(-2deg) rotateX(1deg);
 }
 
-/* mac window dots */
-.terminalBar {
+.ideHeader {
   display: flex;
   align-items: center;
-  gap: 7px;
-  margin-bottom: 20px;
+  background: #1a1d27;
+  padding: 0 16px;
+  height: 48px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.macDots {
+  display: flex;
+  gap: 8px;
+  margin-right: 24px;
 }
 
 .dot {
-  width: 11px;
-  height: 11px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  display: inline-block;
-  flex-shrink: 0;
 }
-
-.dotRed    { background: #ff5f56; }
+.dotRed { background: #ff5f56; }
 .dotYellow { background: #ffbd2e; }
-.dotGreen  { background: #27c93f; }
+.dotGreen { background: #27c93f; }
 
-/* code block inside card */
-.code {
-  font-family: 'Courier New', 'Menlo', monospace;
-  font-size: 0.78rem;
-  line-height: 1.75;
-  color: #cccccc;
-  white-space: pre;
-  margin: 0 0 20px;
-  overflow-x: auto;
+.ideTabs {
+  display: flex;
+  height: 100%;
 }
 
-/* bottom live indicator */
-.terminalFooter {
+.ideTab {
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #888;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+
+.ideTabActive {
+  background: #0f111a;
+  color: #fff;
+  border-top: 2px solid #3b82f6;
+}
+
+.ideLayout {
+  display: flex;
+  height: 380px;
+}
+
+.ideSidebar {
+  width: 160px;
+  background: #0d0f17;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ideSidebarTitle {
+  font-size: 0.65rem;
+  color: #666;
+  padding: 0 16px;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.ideFile,
+.ideFileActive {
+  font-size: 0.8rem;
+  padding: 6px 16px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  color: #888;
+}
+
+.ideFileActive {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+}
+
+.fileIcon {
+  font-size: 0.6rem;
+  color: #3b82f6;
+  font-weight: 700;
+}
+.fileIconEnv {
+  font-size: 0.6rem;
+  color: #10b981;
+  font-weight: 700;
+}
+
+.ideContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ideCode {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+}
+
+.ideCode pre {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  color: #e2e8f0;
+}
+
+.tokenComment { color: #6b7280; font-style: italic; }
+.tokenKeyword { color: #f472b6; }
+.tokenVar { color: #38bdf8; }
+.tokenOperator { color: #9ca3af; }
+.tokenObj { color: #e2e8f0; }
+.tokenProp { color: #818cf8; }
+.tokenMethod { color: #34d399; }
+.tokenString { color: #fbbf24; }
+.tokenSuccess { color: #10b981; font-weight: 600; }
+
+.ideOutput {
+  height: 140px;
+  background: #0d0f17;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.ideOutputHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 0.7rem;
+  color: #666;
+  letter-spacing: 0.05em;
+}
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #888;
 }
 
 .liveDot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #27c93f;
-  box-shadow: 0 0 6px rgba(39, 201, 63, 0.7);
-  flex-shrink: 0;
-  animation: livePulse 2s ease-in-out infinite;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  animation: pulseLive 2s infinite;
 }
 
-@keyframes livePulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+@keyframes pulseLive {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
 }
 
-.liveText {
-  font-size: 0.75rem;
-  color: #888888;
-  letter-spacing: 0.02em;
+.ideOutputText {
+  padding: 12px 16px;
+  margin: 0;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #a1a1aa;
+  overflow: auto;
+  flex: 1;
 }
 
 /* ── Scroll indicator ── */

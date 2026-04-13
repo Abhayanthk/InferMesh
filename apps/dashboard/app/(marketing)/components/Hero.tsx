@@ -102,30 +102,26 @@ export default function Hero() {
           <motion.p variants={itemVariants} className={styles.eyebrow}>The Universal AI Gateway</motion.p>
 
           <motion.h1 variants={itemVariants} className={styles.headline}>
-            <motion.span
-              animate={{ backgroundPosition: ["-200% center", "200% center"] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            <span
               style={{
-                background: "linear-gradient(90deg, #fff 0%, #fff 40%, #7aaaff 50%, #fff 60%, #fff 100%)",
-                backgroundSize: "200% auto",
+                background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
+                display: "block"
               }}
             >
               One API.
-            </motion.span>
-            <motion.span
-              animate={{ backgroundPosition: ["-200% center", "200% center"] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: 0.5 }}
+            </span>
+            <span
               style={{
-                background: "linear-gradient(90deg, #fff 0%, #fff 40%, #7aaaff 50%, #fff 60%, #fff 100%)",
-                backgroundSize: "200% auto",
+                background: "linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f43f5e 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
+                display: "block"
               }}
             >
               Every Model.
-            </motion.span>
+            </span>
           </motion.h1>
 
           <motion.p variants={itemVariants} className={styles.sub}>
@@ -169,7 +165,7 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* ── RIGHT COLUMN — floating terminal card ── */}
+        {/* ── RIGHT COLUMN — IDE card ── */}
         <motion.div 
           initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
           animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
@@ -177,59 +173,77 @@ export default function Hero() {
           className={styles.right} 
           aria-hidden="true"
         >
-          <motion.div 
-            animate={{ 
-              y: [0, -12, 0],
-              rotate: [0, 1, 0, -1, 0]
-            }}
-            transition={{ 
-              y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
-              rotate: { duration: 10, repeat: Infinity, ease: "easeInOut" }
-            }}
-            className={styles.terminalCard}
-          >
-            {/* Terminal Shine */}
-            <motion.div
-              animate={{ x: ["-100%", "200%"] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "linear", delay: 2 }}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: "50%",
-                height: "100%",
-                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)",
-                transform: "skewX(-20deg)",
-                zIndex: 2,
-                pointerEvents: "none"
-              }}
-            />
-            {/* mac dots */}
-            <div className={styles.terminalBar}>
-              <span className={`${styles.dot} ${styles.dotRed}`}   />
-              <span className={`${styles.dot} ${styles.dotYellow}`}/>
-              <span className={`${styles.dot} ${styles.dotGreen}`} />
+          <div className={styles.ideContainer}>
+            <div className={styles.ideHeader}>
+              <div className={styles.macDots}>
+                <span className={`${styles.dot} ${styles.dotRed}`}   />
+                <span className={`${styles.dot} ${styles.dotYellow}`}/>
+                <span className={`${styles.dot} ${styles.dotGreen}`} />
+              </div>
+              <div className={styles.ideTabs}>
+                <div className={`${styles.ideTab} ${styles.ideTabActive}`}>fetch_model.ts</div>
+                <div className={styles.ideTab}>package.json</div>
+              </div>
             </div>
-
-            <pre className={styles.code}>{`// Switch any model instantly
-const response = await client
-  .chat.completions.create({
-    model: "claude-sonnet-4-6",
-    messages: [...]
-  })
-
-// Response received: OK
-{
-  "model": "claude-sonnet-4-6",
-  "tokens": 142,
-  "latency": "0.4s"
-}`}</pre>
-
-            <div className={styles.terminalFooter}>
-              <span className={styles.liveDot} />
-              <span className={styles.liveText}>Live · 0.4s response time</span>
+            
+            <div className={styles.ideLayout}>
+              <div className={styles.ideSidebar}>
+                <div className={styles.ideSidebarTitle}>EXPLORER</div>
+                <div className={styles.ideFileActive}>
+                  <span className={styles.fileIcon}>TS</span> fetch_model.ts
+                </div>
+                <div className={styles.ideFile}>
+                  <span className={styles.fileIcon}>{}</span> package.json
+                </div>
+                <div className={styles.ideFile}>
+                  <span className={styles.fileIconEnv}>.env</span> .env.local
+                </div>
+              </div>
+              
+              <div className={styles.ideContent}>
+                <div className={styles.ideCode}>
+                  <pre>
+                    <span className={styles.tokenComment}>// Switch any model instantly</span>
+                    <br />
+                    <span className={styles.tokenKeyword}>const</span> <span className={styles.tokenVar}>response</span> <span className={styles.tokenOperator}>=</span> <span className={styles.tokenKeyword}>await</span> <span className={styles.tokenObj}>client</span>.<span className={styles.tokenProp}>chat</span>.<span className={styles.tokenProp}>completions</span>.<span className={styles.tokenMethod}>create</span>(<span className={styles.tokenOperator}>{"{"}</span>
+                    <br />
+                    {"  "}<span className={styles.tokenProp}>model</span>: <span className={styles.tokenString}>"claude-sonnet-4-6"</span>,
+                    <br />
+                    {"  "}<span className={styles.tokenProp}>messages</span>: [
+                    <br />
+                    {"    "}<span className={styles.tokenOperator}>{"{"}</span> <span className={styles.tokenProp}>role</span>: <span className={styles.tokenString}>"user"</span>, <span className={styles.tokenProp}>content</span>: <span className={styles.tokenString}>"Explain quantum computing"</span> <span className={styles.tokenOperator}>{"}"}</span>
+                    <br />
+                    {"  "}]
+                    <br />
+                    <span className={styles.tokenOperator}>{"}"}</span>);
+                  </pre>
+                </div>
+                
+                <div className={styles.ideOutput}>
+                  <div className={styles.ideOutputHeader}>
+                    <span>TERMINAL</span>
+                    <div className={styles.liveIndicator}>
+                      <span className={styles.liveDot} />
+                      <span>Live · 0.4s latency</span>
+                    </div>
+                  </div>
+                  <pre className={styles.ideOutputText}>
+                    <span className={styles.tokenSuccess}>✓ Response received</span>
+                    <br />
+                    {'{'}
+                    <br />
+                    {'  "model": "claude-sonnet-4-6",'}
+                    <br />
+                    {'  "tokens_used": 142,'}
+                    <br />
+                    {'  "status": "success"'}
+                    <br />
+                    {'}'}
+                  </pre>
+                </div>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </motion.div>
       </div>
 
