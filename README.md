@@ -1,6 +1,6 @@
 <div align="center">
   <br>
-  <h1>O P E N R O U T E R</h1>
+  <h1>I N F E R   M E S H</h1>
   <p>
     <b>A self-hosted LLM API gateway.</b>
   </p>
